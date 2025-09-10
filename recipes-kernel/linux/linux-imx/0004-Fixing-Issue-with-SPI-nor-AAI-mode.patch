@@ -1,0 +1,40 @@
+From 4c0b98b2645c703331578f642d6bd4cf666adc83 Mon Sep 17 00:00:00 2001
+From: "sanjaikumar.vs" <sanjaikumar.vs@dicortech.com>
+Date: Fri, 10 Mar 2023 16:48:42 +0530
+Subject: [PATCH] Fixing Issue with SPI nor AAI mode
+
+---
+ drivers/mtd/spi-nor/core.c | 2 +-
+ drivers/mtd/spi-nor/sst.c  | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+index d9bfeb5b1673..38cdf11bdb22 100644
+--- a/drivers/mtd/spi-nor/core.c
++++ b/drivers/mtd/spi-nor/core.c
+@@ -276,7 +276,7 @@ static ssize_t spi_nor_spimem_write_data(struct spi_nor *nor, loff_t to,
+ 	if (spi_nor_spimem_bounce(nor, &op))
+ 		memcpy(nor->bouncebuf, buf, op.data.nbytes);
+ 
+-	if (nor->dirmap.wdesc) {
++	if (nor->dirmap.wdesc && !nor->dirmap.wdesc->nodirmap) {
+ 		nbytes = spi_mem_dirmap_write(nor->dirmap.wdesc, op.addr.val,
+ 					      op.data.nbytes, op.data.buf.out);
+ 	} else {
+diff --git a/drivers/mtd/spi-nor/sst.c b/drivers/mtd/spi-nor/sst.c
+index ae20d4b42a99..1e1eb5cae24d 100644
+--- a/drivers/mtd/spi-nor/sst.c
++++ b/drivers/mtd/spi-nor/sst.c
+@@ -128,6 +128,9 @@ static int sst_write(struct mtd_info *mtd, loff_t to, size_t len,
+ 		to++;
+ 		actual++;
+ 	}
++	ret = spi_nor_write_enable(nor);
++	if (ret)
++		goto out;
+ 
+ 	/* Write out most of the data here. */
+ 	for (; actual < len - 1; actual += 2) {
+-- 
+2.17.1
+

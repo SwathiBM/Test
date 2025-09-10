@@ -1,0 +1,97 @@
+From 38fda2271892144ee3d12dbd41bcb83bc8c4a963 Mon Sep 17 00:00:00 2001
+From: "sanjaikumar.vs" <sanjaikumar.vs@dicortech.com>
+Date: Wed, 5 Apr 2023 17:39:49 +0530
+Subject: [PATCH] Adding celeritas rpmsg device tree in linux
+
+---
+ arch/arm64/boot/dts/freescale/Makefile        |  3 +-
+ .../dts/freescale/imx8qxp-celeritas-rpmsg.dts |  5 ++
+ .../freescale/imx8qxp-celeritas-rpmsg.dtsi    | 53 +++++++++++++++++++
+ 3 files changed, 60 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dts
+ create mode 100644 arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dtsi
+
+diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
+index a5c9aa493ecc..17060a14d3ce 100644
+--- a/arch/arm64/boot/dts/freescale/Makefile
++++ b/arch/arm64/boot/dts/freescale/Makefile
+@@ -239,4 +239,5 @@ dtb-$(CONFIG_ARCH_MXC) += imx93-9x9-qsb.dtb \
+ dtb-$(CONFIG_ARCH_S32) += s32v234-evb.dtb \
+ 			  s32v234-sbc.dtb
+ 
+-dtb-$(CONFIG_ARCH_MXC) += imx8qxp-celeritas.dtb
++dtb-$(CONFIG_ARCH_MXC) += imx8qxp-celeritas.dtb \
++                          imx8qxp-celeritas-rpmsg.dtb
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dts b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dts
+new file mode 100644
+index 000000000000..33096907fe1d
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dts
+@@ -0,0 +1,5 @@
++// SPDX-License-Identifier: GPL-2.0+
++// Copyright NXP 2019
++
++#include "imx8qxp-celeritas.dts"
++#include "imx8qxp-celeritas-rpmsg.dtsi"
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dtsi
+new file mode 100644
+index 000000000000..27919e58e6f0
+--- /dev/null
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas-rpmsg.dtsi
+@@ -0,0 +1,53 @@
++// SPDX-License-Identifier: GPL-2.0+
++// Copyright NXP 2019
++
++
++/delete-node/ &cm40_i2c;
++/delete-node/ &i2c1;
++
++/ {
++	aliases {
++		i2c1 = &i2c_rpbus_1;
++	};
++};
++
++&cm40_i2c_lpcg {
++	status = "disabled";
++};
++
++&i2c1_lpcg {
++	status = "disabled";
++};
++
++&can0_lpcg {
++	status = "disabled";
++};
++
++&flexcan1 {
++	status = "disabled";
++};
++
++&flexcan2 {
++	status = "disabled";
++};
++
++&cm40_intmux {
++	status = "disabled";
++};
++
++&flexspi0 {
++	status = "disabled";
++};
++
++&lpuart3 {
++	status = "disabled";
++};
++
++&uart3_lpcg {
++	status = "disabled";
++};
++
++&imx8x_cm4 {
++	/* Assume you have partitioned M4, so M4 is ont controled by Linux */
++	/delete-property/ power-domains;
++};
+-- 
+2.17.1
+

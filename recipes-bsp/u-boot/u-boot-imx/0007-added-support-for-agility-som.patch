@@ -1,0 +1,1799 @@
+From 9d5e9b56c0dc68d4b91d462daf611432c4824139 Mon Sep 17 00:00:00 2001
+From: "muhammed.asif" <muhammed.asif@dicortech.com>
+Date: Sat, 18 Nov 2023 16:47:25 +0530
+Subject: [PATCH] added support for agility som
+
+---
+ arch/arm/dts/Makefile                         |   1 +
+ arch/arm/dts/imx8qxp-agility-u-boot.dtsi      | 277 +++++++++++
+ arch/arm/dts/imx8qxp-agility.dts              | 154 +++++++
+ arch/arm/mach-imx/imx8/Kconfig                |  10 +
+ .../imx8/snvs_security_sc_conf_8qxp_agility.h | 172 +++++++
+ .../imx8/snvs_security_sc_conf_board.h        |   2 +
+ board/freescale/imx8qxp_agility/Kconfig       |  17 +
+ board/freescale/imx8qxp_agility/Makefile      |   8 +
+ .../imx8qxp_agility/imx8qxp_agility.c         | 432 ++++++++++++++++++
+ board/freescale/imx8qxp_agility/imximage.cfg  |  21 +
+ board/freescale/imx8qxp_agility/spl.c         |  89 ++++
+ .../imx8qxp_agility/uboot-container.cfg       |  12 +
+ build_uboot.sh                                |   2 +
+ configs/imx8qxp_agility_defconfig             | 197 ++++++++
+ include/configs/imx8qxp_agility.h             | 255 +++++++++++
+ 15 files changed, 1649 insertions(+)
+ create mode 100644 arch/arm/dts/imx8qxp-agility-u-boot.dtsi
+ create mode 100644 arch/arm/dts/imx8qxp-agility.dts
+ create mode 100644 arch/arm/mach-imx/imx8/snvs_security_sc_conf_8qxp_agility.h
+ create mode 100644 board/freescale/imx8qxp_agility/Kconfig
+ create mode 100644 board/freescale/imx8qxp_agility/Makefile
+ create mode 100644 board/freescale/imx8qxp_agility/imx8qxp_agility.c
+ create mode 100644 board/freescale/imx8qxp_agility/imximage.cfg
+ create mode 100644 board/freescale/imx8qxp_agility/spl.c
+ create mode 100644 board/freescale/imx8qxp_agility/uboot-container.cfg
+ create mode 100755 build_uboot.sh
+ create mode 100644 configs/imx8qxp_agility_defconfig
+ create mode 100644 include/configs/imx8qxp_agility.h
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 709fdaec..f8aaff29 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -944,6 +944,7 @@ dtb-$(CONFIG_ARCH_IMX8) += \
+ 	fsl-imx8qxp-colibri.dtb \
+ 	fsl-imx8qxp-apalis.dtb \
+ 	fsl-imx8qxp-mek.dtb \
++	imx8qxp-agility.dtb \
+ 	fsl-imx8qxp-lpddr4-val.dtb \
+ 	fsl-imx8qxp-lpddr4-val-gpmi-nand.dtb \
+ 	fsl-imx8qxp-17x17-val.dtb \
+diff --git a/arch/arm/dts/imx8qxp-agility-u-boot.dtsi b/arch/arm/dts/imx8qxp-agility-u-boot.dtsi
+new file mode 100644
+index 00000000..320b5d46
+--- /dev/null
++++ b/arch/arm/dts/imx8qxp-agility-u-boot.dtsi
+@@ -0,0 +1,277 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2018, 2021 NXP
++ */
++
++/ {
++
++	aliases {
++		usbhost1 = &usbh3;
++		usbgadget0 = &usbg1;
++	};
++
++	usbh3: usbh3 {
++		compatible = "Cadence,usb3-host";
++		dr_mode = "host";
++		cdns3,usb = <&usbotg3>;
++		status = "okay";
++	};
++
++	usbg1: usbg1 {
++		compatible = "fsl,imx27-usb-gadget";
++		dr_mode = "peripheral";
++		chipidea,usb = <&usbotg1>;
++		status = "okay";
++		u-boot,dm-spl;
++	};
++
++};
++
++&{/imx8qx-pm} {
++
++	u-boot,dm-spl;
++};
++
++&mu {
++	u-boot,dm-spl;
++};
++
++&clk {
++	u-boot,dm-spl;
++};
++
++&iomuxc {
++	u-boot,dm-spl;
++};
++
++&{/regulators} {
++	u-boot,dm-spl;
++};
++
++&reg_usdhc2_vmmc {
++	u-boot,dm-spl;
++};
++
++&{/mu@5d1c0000/iomuxc/imx8qxp-agility} {
++	u-boot,dm-spl;
++};
++
++&pinctrl_usdhc2_gpio {
++	u-boot,dm-spl;
++};
++
++&pinctrl_usdhc2 {
++	u-boot,dm-spl;
++};
++
++&pinctrl_lpuart0 {
++	u-boot,dm-spl;
++};
++
++&pinctrl_usdhc1 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio0 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio1 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio2 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio3 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio4 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio5 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio6 {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_gpio7 {
++	u-boot,dm-spl;
++};
++
++&pd_conn {
++	u-boot,dm-spl;
++};
++
++&pd_conn_sdch0 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_sdch1 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_sdch2 {
++	u-boot,dm-spl;
++};
++
++&pd_dma {
++	u-boot,dm-spl;
++};
++
++&pd_dma_lpuart0 {
++	u-boot,dm-spl;
++};
++
++&pd_caam {
++	u-boot,dm-spl;
++};
++
++&pd_caam_jr1 {
++	u-boot,dm-spl;
++};
++
++&pd_caam_jr2 {
++	u-boot,dm-spl;
++};
++
++&pd_caam_jr3 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_usbotg0 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_usbotg0_phy {
++	u-boot,dm-spl;
++};
++
++&pd_lsio_flexspi0 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_usb2 {
++	u-boot,dm-spl;
++};
++
++&pd_conn_usb2_phy {
++	u-boot,dm-spl;
++};
++
++&gpio0 {
++	u-boot,dm-spl;
++};
++
++&gpio1 {
++	u-boot,dm-spl;
++};
++
++&gpio2 {
++	u-boot,dm-spl;
++};
++
++&gpio3 {
++	u-boot,dm-spl;
++};
++
++&gpio4 {
++	u-boot,dm-spl;
++};
++
++&gpio5 {
++	u-boot,dm-spl;
++};
++
++&gpio6 {
++	u-boot,dm-spl;
++};
++
++&gpio7 {
++	u-boot,dm-spl;
++};
++
++&lpuart0 {
++	u-boot,dm-spl;
++};
++
++&usbmisc1 {
++	u-boot,dm-spl;
++};
++
++&usbphy1 {
++	u-boot,dm-spl;
++};
++
++&usbotg1 {
++	u-boot,dm-spl;
++};
++
++&usbotg3 {
++	phys = <&usbphynop1>;
++	u-boot,dm-spl;
++};
++
++&usbphynop1 {
++	compatible = "cdns,usb3-phy";
++	reg = <0x0 0x5B160000 0x0 0x40000>;
++	#phy-cells = <0>;
++	u-boot,dm-spl;
++};
++
++&usdhc1 {
++	u-boot,dm-spl;
++	no-1-8-v;
++};
++
++&usdhc2 {
++	u-boot,dm-spl;
++	sd-uhs-sdr104;
++	sd-uhs-ddr50;
++};
++
++&crypto {
++	u-boot,dm-spl;
++};
++
++&sec_jr1 {
++	u-boot,dm-spl;
++};
++
++&sec_jr2 {
++	u-boot,dm-spl;
++};
++
++&sec_jr3 {
++	u-boot,dm-spl;
++};
++
++&flexspi0 {
++	u-boot,dm-spl;
++};
++
++&i2c1 {
++	compatible = "fsl,imx8qm-lpi2c", "fsl,imx-virt-i2c";
++};
++
++&wu {
++	u-boot,dm-spl;
++};
++
++&fec1 {
++	phy-mode = "rgmii-id";
++};
++
++&fec2 {
++	phy-mode = "rgmii-id";
++};
++
+diff --git a/arch/arm/dts/imx8qxp-agility.dts b/arch/arm/dts/imx8qxp-agility.dts
+new file mode 100644
+index 00000000..6bfff4ee
+--- /dev/null
++++ b/arch/arm/dts/imx8qxp-agility.dts
+@@ -0,0 +1,154 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2017-2018 NXP
++ */
++
++/dts-v1/;
++
++#include "fsl-imx8qxp.dtsi"
++
++/ {
++	model = "Agility SOM iMX8QXP";
++	compatible = "fsl,imx8qxp-agility", "fsl,imx8qxp";
++
++	chosen {
++		bootargs = "console=ttyLP0,115200 earlycon";
++		stdout-path = &lpuart0;
++	};
++
++	regulators {
++		compatible = "simple-bus";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		reg_usdhc2_vmmc: regulator-usdhc2-vmmc {
++			compatible = "regulator-fixed";
++			regulator-name = "SD1_SPWR";
++			regulator-min-microvolt = <3000000>;
++			regulator-max-microvolt = <3000000>;
++			gpio = <&gpio4 19 GPIO_ACTIVE_HIGH>;
++			enable-active-high;
++			off-on-delay-us = <3480>;
++		};
++
++	};
++};
++
++&iomuxc {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_hog>;
++
++	imx8qxp-agility {
++		pinctrl_hog: hoggrp {
++			fsl,pins = <
++				SC_P_MCLK_OUT0_ADMA_ACM_MCLK_OUT0	0x0600004c
++				SC_P_COMP_CTL_GPIO_1V8_3V3_GPIORHB_PAD	0x000514a0
++			>;
++		};
++
++		pinctrl_lpuart0: lpuart0grp {
++			fsl,pins = <
++				SC_P_UART0_RX_ADMA_UART0_RX	0x06000020
++				SC_P_UART0_TX_ADMA_UART0_TX	0x06000020
++			>;
++		};
++
++		pinctrl_usdhc1: usdhc1grp {
++			fsl,pins = <
++				SC_P_EMMC0_CLK_CONN_EMMC0_CLK		0x06000041
++				SC_P_EMMC0_CMD_CONN_EMMC0_CMD		0x00000021
++				SC_P_EMMC0_DATA0_CONN_EMMC0_DATA0	0x00000021
++				SC_P_EMMC0_DATA1_CONN_EMMC0_DATA1	0x00000021
++				SC_P_EMMC0_DATA2_CONN_EMMC0_DATA2	0x00000021
++				SC_P_EMMC0_DATA3_CONN_EMMC0_DATA3	0x00000021
++				SC_P_EMMC0_DATA4_CONN_EMMC0_DATA4	0x00000021
++				SC_P_EMMC0_DATA5_CONN_EMMC0_DATA5	0x00000021
++				SC_P_EMMC0_DATA6_CONN_EMMC0_DATA6	0x00000021
++				SC_P_EMMC0_DATA7_CONN_EMMC0_DATA7	0x00000021
++				SC_P_EMMC0_STROBE_CONN_EMMC0_STROBE	0x00000041
++			>;
++		};
++
++		pinctrl_usdhc2_gpio: usdhc2gpiogrp {
++			fsl,pins = <
++				SC_P_USDHC1_RESET_B_LSIO_GPIO4_IO19	0x00000021
++				SC_P_USDHC1_WP_LSIO_GPIO4_IO21		0x00000021
++				SC_P_USDHC1_CD_B_LSIO_GPIO4_IO22	0x00000021
++			>;
++		};
++
++		pinctrl_usdhc2: usdhc2grp {
++			fsl,pins = <
++				SC_P_USDHC1_CLK_CONN_USDHC1_CLK		0x06000041
++				SC_P_USDHC1_CMD_CONN_USDHC1_CMD		0x00000021
++				SC_P_USDHC1_DATA0_CONN_USDHC1_DATA0	0x00000021
++				SC_P_USDHC1_DATA1_CONN_USDHC1_DATA1	0x00000021
++				SC_P_USDHC1_DATA2_CONN_USDHC1_DATA2	0x00000021
++				SC_P_USDHC1_DATA3_CONN_USDHC1_DATA3	0x00000021
++				SC_P_USDHC1_VSELECT_CONN_USDHC1_VSELECT	0x00000021
++			>;
++		};
++	};
++};
++
++&A35_0 {
++	u-boot,dm-pre-reloc;
++};
++
++&lpuart0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_lpuart0>;
++	status = "okay";
++};
++
++&gpio0 {
++	status = "okay";
++};
++
++&gpio1 {
++	status = "okay";
++};
++
++&gpio3 {
++	status = "okay";
++};
++
++&gpio4 {
++	status = "okay";
++};
++
++&usdhc1 {
++	pinctrl-names = "default", "state_100mhz", "state_200mhz";
++	pinctrl-0 = <&pinctrl_usdhc1>;
++	pinctrl-1 = <&pinctrl_usdhc1>;
++	pinctrl-2 = <&pinctrl_usdhc1>;
++	bus-width = <8>;
++	non-removable;
++	status = "okay";
++};
++
++&usdhc2 {
++	pinctrl-names = "default", "state_100mhz", "state_200mhz";
++	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	pinctrl-1 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	pinctrl-2 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	bus-width = <4>;
++	cd-gpios = <&gpio4 22 GPIO_ACTIVE_LOW>;
++	wp-gpios = <&gpio4 21 GPIO_ACTIVE_HIGH>;
++	vmmc-supply = <&reg_usdhc2_vmmc>;
++	status = "okay";
++};
++
++&usbotg3 {
++       status = "okay";
++};
++
++&dpu1 {
++       status = "okay";
++};
++
++&ldb1_phy {
++       status = "okay";
++       status = "okay";
++};
++
+diff --git a/arch/arm/mach-imx/imx8/Kconfig b/arch/arm/mach-imx/imx8/Kconfig
+index df383fe9..f14c551a 100644
+--- a/arch/arm/mach-imx/imx8/Kconfig
++++ b/arch/arm/mach-imx/imx8/Kconfig
+@@ -133,6 +133,15 @@ config TARGET_IMX8QXP_MEK
+ 	select ARCH_MISC_INIT
+ 	select SPL_CRYPTO if SPL
+ 
++config TARGET_IMX8QXP_AGILITY
++	bool "Support i.MX8QXP Agility board"
++	select BOARD_LATE_INIT
++	select IMX8QXP
++	select FSL_CAAM
++	select FSL_BLOB
++	select ARCH_MISC_INIT
++	select SPL_CRYPTO if SPL
++
+ config TARGET_IMX8QM_MEK_A53_ONLY
+         bool "Support i.MX8QM MEK board, cluster A53 only"
+         select BOARD_LATE_INIT
+@@ -210,6 +219,7 @@ source "board/toradex/apalis-imx8/Kconfig"
+ source "board/toradex/colibri-imx8x/Kconfig"
+ source "board/toradex/apalis-imx8x/Kconfig"
+ source "board/siemens/capricorn/Kconfig"
++source "board/freescale/imx8qxp_agility/Kconfig"
+ 
+ config IMX_SNVS_SEC_SC
+ 	bool "Support SNVS configuration"
+diff --git a/arch/arm/mach-imx/imx8/snvs_security_sc_conf_8qxp_agility.h b/arch/arm/mach-imx/imx8/snvs_security_sc_conf_8qxp_agility.h
+new file mode 100644
+index 00000000..3400cb9e
+--- /dev/null
++++ b/arch/arm/mach-imx/imx8/snvs_security_sc_conf_8qxp_agility.h
+@@ -0,0 +1,172 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2020 NXP.
++ */
++
++#ifndef SNVS_SECURITY_SC_CONF_8QXP_AGILITY_H_
++#define SNVS_SECURITY_SC_CONF_8QXP_AGILITY_H_
++
++#include "snvs_security_sc_conf.h"
++
++static __maybe_unused struct snvs_security_sc_conf snvs_default_config = {
++	.hp = {
++		.lock = 0x1f0703ff,
++		.secvio_intcfg = 0x8000002f,
++		.secvio_ctl = 0xC000007f,
++	},
++	.lp = {
++		.lock = 0x1f0003ff,
++		.secvio_ctl = 0x36,
++		.tamper_filt_cfg = 0,
++		.tamper_det_cfg = 0x76, /* analogic tampers
++					 * + rollover tampers
++					 */
++		.tamper_det_cfg2 = 0,
++		.tamper_filt1_cfg = 0,
++		.tamper_filt2_cfg = 0,
++		.act_tamper1_cfg = 0,
++		.act_tamper2_cfg = 0,
++		.act_tamper3_cfg = 0,
++		.act_tamper4_cfg = 0,
++		.act_tamper5_cfg = 0,
++		.act_tamper_ctl = 0,
++		.act_tamper_clk_ctl = 0,
++		.act_tamper_routing_ctl1 = 0,
++		.act_tamper_routing_ctl2 = 0,
++	}
++};
++
++static __maybe_unused struct snvs_dgo_conf snvs_dgo_default_config = {
++	.tamper_misc_ctl = 0x80000000, /* Lock the DGO */
++};
++
++static __maybe_unused struct snvs_security_sc_conf snvs_passive_vcc_config = {
++	.hp = {
++		.lock = 0x1f0703ff,
++		.secvio_intcfg = 0x8000002f,
++		.secvio_ctl = 0xC000007f,
++	},
++	.lp = {
++		.lock = 0x1f0003ff,
++		.secvio_ctl = 0x36,
++		.tamper_filt_cfg = 0,
++		.tamper_det_cfg = 0x276, /* ET1 will trig on line at GND
++					  *  + analogic tampers
++					  *  + rollover tampers
++					  */
++		.tamper_det_cfg2 = 0,
++		.tamper_filt1_cfg = 0,
++		.tamper_filt2_cfg = 0,
++		.act_tamper1_cfg = 0,
++		.act_tamper2_cfg = 0,
++		.act_tamper3_cfg = 0,
++		.act_tamper4_cfg = 0,
++		.act_tamper5_cfg = 0,
++		.act_tamper_ctl = 0,
++		.act_tamper_clk_ctl = 0,
++		.act_tamper_routing_ctl1 = 0,
++		.act_tamper_routing_ctl2 = 0,
++	}
++};
++
++static __maybe_unused struct snvs_security_sc_conf snvs_passive_gnd_config = {
++	.hp = {
++		.lock = 0x1f0703ff,
++		.secvio_intcfg = 0x8000002f,
++		.secvio_ctl = 0xC000007f,
++	},
++	.lp = {
++		.lock = 0x1f0003ff,
++		.secvio_ctl = 0x36,
++		.tamper_filt_cfg = 0,
++		.tamper_det_cfg = 0xa76, /* ET1 will trig on line at VCC
++					  *  + analogic tampers
++					  *  + rollover tampers
++					  */
++		.tamper_det_cfg2 = 0,
++		.tamper_filt1_cfg = 0,
++		.tamper_filt2_cfg = 0,
++		.act_tamper1_cfg = 0,
++		.act_tamper2_cfg = 0,
++		.act_tamper3_cfg = 0,
++		.act_tamper4_cfg = 0,
++		.act_tamper5_cfg = 0,
++		.act_tamper_ctl = 0,
++		.act_tamper_clk_ctl = 0,
++		.act_tamper_routing_ctl1 = 0,
++		.act_tamper_routing_ctl2 = 0,
++	}
++};
++
++static __maybe_unused struct snvs_security_sc_conf snvs_active_config = {
++	.hp = {
++		.lock = 0x1f0703ff,
++		.secvio_intcfg = 0x8000002f,
++		.secvio_ctl = 0xC000007f,
++	},
++	.lp = {
++		.lock = 0x1f0003ff,
++		.secvio_ctl = 0x36,
++		.tamper_filt_cfg = 0x00800000, /* Enable filtering */
++		.tamper_det_cfg = 0x276, /* ET1 enabled + analogic tampers
++					  *  + rollover tampers
++					  */
++		.tamper_det_cfg2 = 0,
++		.tamper_filt1_cfg = 0,
++		.tamper_filt2_cfg = 0,
++		.act_tamper1_cfg = 0x84001111,
++		.act_tamper2_cfg = 0,
++		.act_tamper3_cfg = 0,
++		.act_tamper4_cfg = 0,
++		.act_tamper5_cfg = 0,
++		.act_tamper_ctl = 0x00010001,
++		.act_tamper_clk_ctl = 0,
++		.act_tamper_routing_ctl1 = 0x1,
++		.act_tamper_routing_ctl2 = 0,
++	}
++};
++
++static __maybe_unused struct snvs_dgo_conf snvs_dgo_passive_vcc_config = {
++	.tamper_misc_ctl = 0x80000000, /* Lock the DGO */
++	.tamper_pull_ctl = 0x00000001, /* Pull down ET1 */
++	.tamper_ana_test_ctl = 0x20000000, /* Enable tamper */
++};
++
++static __maybe_unused struct snvs_dgo_conf snvs_dgo_passive_gnd_config = {
++	.tamper_misc_ctl = 0x80000000, /* Lock the DGO */
++	.tamper_pull_ctl = 0x00000401, /* Pull up ET1 */
++	.tamper_ana_test_ctl = 0x20000000, /* Enable tamper */
++};
++
++static __maybe_unused struct snvs_dgo_conf snvs_dgo_active_config = {
++	.tamper_misc_ctl = 0x80000000, /* Lock the DGO */
++	.tamper_ana_test_ctl = 0x20000000, /* Enable tamper */
++};
++
++static struct tamper_pin_cfg tamper_pin_list_default_config[] = {
++	{SC_P_CSI_D05, 0}, /* Tamp_In0 */
++	{SC_P_CSI_D06, 0}, /* Tamp_In1 */
++	{SC_P_CSI_D07, 0}, /* Tamp_In2 */
++	{SC_P_CSI_HSYNC, 0}, /* Tamp_In3 */
++	{SC_P_CSI_VSYNC, 0}, /* Tamp_In4 */
++	{SC_P_CSI_D00, 0}, /* Tamp_Out0 */
++	{SC_P_CSI_D01, 0}, /* Tamp_Out1 */
++	{SC_P_CSI_D02, 0}, /* Tamp_Out2 */
++	{SC_P_CSI_D03, 0}, /* Tamp_Out3 */
++	{SC_P_CSI_D04, 0}, /* Tamp_Out4 */
++};
++
++static __maybe_unused struct tamper_pin_cfg tamper_pin_list_passive_vcc_config[] = {
++	{SC_P_CSI_D05, 0x1c000060}, /* Tamp_In0 */ /* Sel tamper + OD input */
++};
++
++static __maybe_unused struct tamper_pin_cfg tamper_pin_list_passive_gnd_config[] = {
++	{SC_P_CSI_D05, 0x1c000060}, /* Tamp_In0 */ /* Sel tamper + OD input */
++};
++
++static __maybe_unused struct tamper_pin_cfg tamper_pin_list_active_config[] = {
++	{SC_P_CSI_D00, 0x1a000060}, /* Tamp_Out0 */ /* Sel tamper + OD */
++	{SC_P_CSI_D05, 0x1c000060}, /* Tamp_In0 */ /* Sel tamper + OD input */
++};
++
++#endif /* SNVS_SECURITY_SC_CONF_8QXP_AGILITY_H_ */
+diff --git a/arch/arm/mach-imx/imx8/snvs_security_sc_conf_board.h b/arch/arm/mach-imx/imx8/snvs_security_sc_conf_board.h
+index 250952b7..9206bace 100644
+--- a/arch/arm/mach-imx/imx8/snvs_security_sc_conf_board.h
++++ b/arch/arm/mach-imx/imx8/snvs_security_sc_conf_board.h
+@@ -12,6 +12,8 @@
+ #include "snvs_security_sc_conf_8qxp_mek.h"
+ #elif CONFIG_TARGET_IMX8DXL_EVK
+ #include "snvs_security_sc_conf_8dxl_evk.h"
++#elif CONFIG_TARGET_IMX8QXP_AGILITY
++#include "snvs_security_sc_conf_8qxp_agility.h"
+ #else
+ 
+ #include "snvs_security_sc_conf.h"
+diff --git a/board/freescale/imx8qxp_agility/Kconfig b/board/freescale/imx8qxp_agility/Kconfig
+new file mode 100644
+index 00000000..94863fb1
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/Kconfig
+@@ -0,0 +1,17 @@
++if TARGET_IMX8QXP_AGILITY 
++
++config SYS_BOARD
++	default "imx8qxp_agility"
++
++config SYS_VENDOR
++	default "freescale"
++
++config SYS_CONFIG_NAME
++	default "imx8qxp_agility"
++
++config IMX_CONFIG
++	default "board/freescale/imx8qxp_agility/imximage.cfg"
++
++source "board/freescale/common/Kconfig"
++
++endif
+diff --git a/board/freescale/imx8qxp_agility/Makefile b/board/freescale/imx8qxp_agility/Makefile
+new file mode 100644
+index 00000000..dcdbe0e5
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/Makefile
+@@ -0,0 +1,8 @@
++#
++# Copyright 2017 NXP
++#
++# SPDX-License-Identifier:	GPL-2.0+
++#
++
++obj-y += imx8qxp_agility.o
++obj-$(CONFIG_SPL_BUILD) += spl.o
+diff --git a/board/freescale/imx8qxp_agility/imx8qxp_agility.c b/board/freescale/imx8qxp_agility/imx8qxp_agility.c
+new file mode 100644
+index 00000000..3a65ce89
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/imx8qxp_agility.c
+@@ -0,0 +1,432 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2018 NXP
++ */
++
++#include <common.h>
++#include <cpu_func.h>
++#include <env.h>
++#include <errno.h>
++#include <init.h>
++#include <asm/global_data.h>
++#include <linux/delay.h>
++#include <linux/libfdt.h>
++#include <fsl_esdhc_imx.h>
++#include <fdt_support.h>
++#include <asm/io.h>
++#include <asm/gpio.h>
++#include <asm/arch/clock.h>
++#include <asm/arch/sci/sci.h>
++#include <asm/arch/imx8-pins.h>
++#include <asm/arch/snvs_security_sc.h>
++#include <asm/arch/iomux.h>
++#include <asm/arch/sys_proto.h>
++#include <usb.h>
++#include "../common/tcpc.h"
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define ENET_INPUT_PAD_CTRL	((SC_PAD_CONFIG_OD_IN << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
++						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
++
++#define ENET_NORMAL_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) \
++						| (SC_PAD_28FDSOI_DSE_18V_10MA << PADRING_DSE_SHIFT) | (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
++
++#define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
++			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
++			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
++			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
++
++#define UART_PAD_CTRL	((SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
++			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
++			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
++			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
++
++static iomux_cfg_t uart0_pads[] = {
++	SC_P_UART0_RX | MUX_PAD_CTRL(UART_PAD_CTRL),
++	SC_P_UART0_TX | MUX_PAD_CTRL(UART_PAD_CTRL),
++};
++
++static void setup_iomux_uart(void)
++{
++	imx8_iomux_setup_multiple_pads(uart0_pads, ARRAY_SIZE(uart0_pads));
++}
++
++int board_early_init_f(void)
++{
++	sc_pm_clock_rate_t rate = SC_80MHZ;
++	int ret;
++
++	/* Set UART0 clock root to 80 MHz */
++	ret = sc_pm_setup_uart(SC_R_UART_0, rate);
++	if (ret)
++		return ret;
++
++	setup_iomux_uart();
++
++	return 0;
++}
++
++#if CONFIG_IS_ENABLED(DM_GPIO)
++static void board_gpio_init(void)
++{
++	struct gpio_desc desc;
++	int ret;
++
++	ret = dm_gpio_lookup_name("gpio@1a_3", &desc);
++	if (ret)
++		return;
++
++	ret = dm_gpio_request(&desc, "bb_per_rst_b");
++	if (ret)
++		return;
++
++	dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
++	dm_gpio_set_value(&desc, 0);
++	udelay(50);
++	dm_gpio_set_value(&desc, 1);
++}
++#else
++static inline void board_gpio_init(void) {}
++#endif
++
++#if IS_ENABLED(CONFIG_FEC_MXC)
++#include <miiphy.h>
++
++#ifndef CONFIG_DM_ETH
++static iomux_cfg_t pad_enet1[] = {
++	SC_P_SPDIF0_TX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_SPDIF0_RX | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ESAI0_TX3_RX2 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ESAI0_TX2_RX3 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ESAI0_TX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ESAI0_TX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ESAI0_SCKR | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ESAI0_TX4_RX1 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ESAI0_TX5_RX0 | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ESAI0_FST  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ESAI0_SCKT | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ESAI0_FSR  | MUX_MODE_ALT(3) | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++
++	/* Shared MDIO */
++	SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++};
++
++static iomux_cfg_t pad_enet0[] = {
++	SC_P_ENET0_RGMII_RX_CTL | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_RXD0 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_RXD1 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_RXD2 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_RXD3 | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_RXC | MUX_PAD_CTRL(ENET_INPUT_PAD_CTRL),
++	SC_P_ENET0_RGMII_TX_CTL | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_RGMII_TXD0 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_RGMII_TXD1 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_RGMII_TXD2 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_RGMII_TXD3 | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_RGMII_TXC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++
++	/* Shared MDIO */
++	SC_P_ENET0_MDC | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++	SC_P_ENET0_MDIO | MUX_PAD_CTRL(ENET_NORMAL_PAD_CTRL),
++};
++
++static void setup_iomux_fec(void)
++{
++	if (0 == CONFIG_FEC_ENET_DEV)
++		imx8_iomux_setup_multiple_pads(pad_enet0, ARRAY_SIZE(pad_enet0));
++	else
++		imx8_iomux_setup_multiple_pads(pad_enet1, ARRAY_SIZE(pad_enet1));
++}
++
++static void enet_device_phy_reset(void)
++{
++	struct gpio_desc desc;
++	int ret;
++
++	/* The BB_PER_RST_B will reset the ENET1 PHY */
++	if (0 == CONFIG_FEC_ENET_DEV) {
++		ret = dm_gpio_lookup_name("gpio@1a_4", &desc);
++		if (ret)
++			return;
++
++		ret = dm_gpio_request(&desc, "enet0_reset");
++		if (ret)
++			return;
++
++		dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT);
++		dm_gpio_set_value(&desc, 0);
++		udelay(50);
++		dm_gpio_set_value(&desc, 1);
++	}
++
++	/* The board has a long delay for this reset to become stable */
++	mdelay(200);
++}
++
++int board_eth_init(bd_t *bis)
++{
++	int ret;
++	struct power_domain pd;
++
++	printf("[%s] %d\n", __func__, __LINE__);
++
++	/* Reset ENET PHY */
++	enet_device_phy_reset();
++
++	if (CONFIG_FEC_ENET_DEV) {
++		if (!power_domain_lookup_name("conn_enet1", &pd))
++			power_domain_on(&pd);
++	} else {
++		if (!power_domain_lookup_name("conn_enet0", &pd))
++			power_domain_on(&pd);
++	}
++
++	setup_iomux_fec();
++
++	ret = fecmxc_initialize_multi(bis, CONFIG_FEC_ENET_DEV,
++		CONFIG_FEC_MXC_PHYADDR, IMX_FEC_BASE);
++	if (ret)
++		printf("FEC1 MXC: %s:failed\n", __func__);
++
++	return ret;
++}
++
++int board_phy_config(struct phy_device *phydev)
++{
++	if (phydev->drv->config)
++		phydev->drv->config(phydev);
++
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x1f);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x8);
++
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x00);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x82ee);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1d, 0x05);
++	phy_write(phydev, MDIO_DEVAD_NONE, 0x1e, 0x100);
++
++	return 0;
++}
++#endif
++#endif
++
++int checkboard(void)
++{
++#ifdef CONFIG_TARGET_IMX8QXP_AGILITY
++	puts("Board: iMX8QXP Agility\n");
++#else
++	puts("Board: Unknown\n");
++#endif
++
++	print_bootinfo();
++
++	return 0;
++}
++
++#ifdef CONFIG_USB
++
++#ifdef CONFIG_USB_TCPC
++struct gpio_desc type_sel_desc;
++static iomux_cfg_t ss_mux_gpio[] = {
++	SC_P_ENET0_REFCLK_125M_25M | MUX_MODE_ALT(4) | MUX_PAD_CTRL(GPIO_PAD_CTRL),
++};
++
++struct tcpc_port port;
++struct tcpc_port_config port_config = {
++	.i2c_bus = 1,
++	.addr = 0x50,
++	.port_type = TYPEC_PORT_DFP,
++};
++
++void ss_mux_select(enum typec_cc_polarity pol)
++{
++	if (pol == TYPEC_POLARITY_CC1)
++		dm_gpio_set_value(&type_sel_desc, 0);
++	else
++		dm_gpio_set_value(&type_sel_desc, 1);
++}
++
++static void setup_typec(void)
++{
++	int ret;
++	struct gpio_desc typec_en_desc;
++
++	imx8_iomux_setup_multiple_pads(ss_mux_gpio, ARRAY_SIZE(ss_mux_gpio));
++	ret = dm_gpio_lookup_name("GPIO5_9", &type_sel_desc);
++	if (ret) {
++		printf("%s lookup GPIO5_9 failed ret = %d\n", __func__, ret);
++		return;
++	}
++
++	ret = dm_gpio_request(&type_sel_desc, "typec_sel");
++	if (ret) {
++		printf("%s request typec_sel failed ret = %d\n", __func__, ret);
++		return;
++	}
++
++	dm_gpio_set_dir_flags(&type_sel_desc, GPIOD_IS_OUT);
++
++	ret = dm_gpio_lookup_name("gpio@1a_7", &typec_en_desc);
++	if (ret) {
++		printf("%s lookup gpio@1a_7 failed ret = %d\n", __func__, ret);
++		return;
++	}
++
++	ret = dm_gpio_request(&typec_en_desc, "typec_en");
++	if (ret) {
++		printf("%s request typec_en failed ret = %d\n", __func__, ret);
++		return;
++	}
++
++	/* Enable SS MUX */
++	dm_gpio_set_dir_flags(&typec_en_desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
++
++	ret = tcpc_init(&port, port_config, &ss_mux_select);
++	if (ret) {
++		printf("%s: tcpc init failed, err=%d\n", __func__, ret);
++		return;
++	}
++}
++#endif
++
++int board_usb_init(int index, enum usb_init_type init)
++{
++	int ret = 0;
++
++	if (index == 1) {
++		if (init == USB_INIT_HOST) {
++#ifdef CONFIG_USB_TCPC
++			ret = tcpc_setup_dfp_mode(&port);
++#endif
++#ifdef CONFIG_USB_CDNS3_GADGET
++		} else {
++#ifdef CONFIG_USB_TCPC
++			ret = tcpc_setup_ufp_mode(&port);
++			printf("%d setufp mode %d\n", index, ret);
++#endif
++#endif
++		}
++	}
++
++	return ret;
++
++}
++
++int board_usb_cleanup(int index, enum usb_init_type init)
++{
++	int ret = 0;
++
++	if (index == 1) {
++		if (init == USB_INIT_HOST) {
++#ifdef CONFIG_USB_TCPC
++			ret = tcpc_disable_src_vbus(&port);
++#endif
++		}
++	}
++
++	return ret;
++}
++#endif
++
++int board_init(void)
++{
++	board_gpio_init();
++
++#if defined(CONFIG_USB) && defined(CONFIG_USB_TCPC)
++	setup_typec();
++#endif
++
++#ifdef CONFIG_IMX_SNVS_SEC_SC_AUTO
++	{
++		int ret = snvs_security_sc_init();
++
++		if (ret)
++			return ret;
++	}
++#endif
++
++	return 0;
++}
++
++void board_quiesce_devices(void)
++{
++	const char *power_on_devices[] = {
++		"dma_lpuart0",
++
++		/* HIFI DSP boot */
++		"audio_sai0",
++		"audio_ocram",
++	};
++
++	imx8_power_off_pd_devices(power_on_devices, ARRAY_SIZE(power_on_devices));
++}
++
++/*
++ * Board specific reset that is system reset.
++ */
++void reset_cpu(void)
++{
++	sc_pm_reboot(-1, SC_PM_RESET_TYPE_COLD);
++	while(1);
++
++}
++
++#ifdef CONFIG_OF_BOARD_SETUP
++int ft_board_setup(void *blob, struct bd_info *bd)
++{
++	return 0;
++}
++#endif
++
++int board_late_init(void)
++{
++	char *fdt_file;
++	bool m4_booted;
++
++	build_info();
++
++#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
++	env_set("board_name", "Agility");
++	env_set("board_rev", "iMX8QXP");
++#endif
++
++	env_set("sec_boot", "no");
++#ifdef CONFIG_AHAB_BOOT
++	env_set("sec_boot", "yes");
++#endif
++
++	fdt_file = env_get("fdt_file");
++	m4_booted = m4_parts_booted();
++
++	if (fdt_file && !strcmp(fdt_file, "undefined")) {
++		if (m4_booted)
++			env_set("fdt_file", "imx8qxp-agility-rpmsg.dtb");
++		else
++			env_set("fdt_file", "imx8qxp-agility.dtb");
++	}
++
++#ifdef CONFIG_ENV_IS_IN_MMC
++	board_late_mmc_env_init();
++#endif
++
++	return 0;
++}
++
++#ifdef CONFIG_ANDROID_SUPPORT
++bool is_power_key_pressed(void) {
++	sc_bool_t status = SC_FALSE;
++
++	sc_misc_get_button_status(-1, &status);
++	return (bool)status;
++}
++#endif
++
++#ifdef CONFIG_FSL_FASTBOOT
++#ifdef CONFIG_ANDROID_RECOVERY
++int is_recovery_key_pressing(void)
++{
++	return 0; /* TODO */
++}
++#endif /* CONFIG_ANDROID_RECOVERY */
++#endif /* CONFIG_FSL_FASTBOOT */
+diff --git a/board/freescale/imx8qxp_agility/imximage.cfg b/board/freescale/imx8qxp_agility/imximage.cfg
+new file mode 100644
+index 00000000..2f5d59da
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/imximage.cfg
+@@ -0,0 +1,21 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2018 NXP
++ *
++ * Refer doc/imx/mkimage/imx8image.txt for more details about how-to configure
++ * and create imx8image boot image
++ */
++
++
++/* Boot from SD, sector size 0x400 */
++BOOT_FROM EMMC_FASTBOOT 0x400
++/* SoC type IMX8QX */
++SOC_TYPE IMX8QX
++/* Append seco container image */
++APPEND ahab-container.img
++/* Create the 2nd container */
++CONTAINER
++/* Add scfw image with exec attribute */
++IMAGE SCU mx8qx-agility-scfw-tcm.bin
++/* Add ATF image with exec attribute */
++IMAGE A35 spl/u-boot-spl.bin 0x00100000
+diff --git a/board/freescale/imx8qxp_agility/spl.c b/board/freescale/imx8qxp_agility/spl.c
+new file mode 100644
+index 00000000..2ea710cb
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/spl.c
+@@ -0,0 +1,89 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Copyright 2018, 2021 NXP
++ *
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <image.h>
++#include <init.h>
++#include <log.h>
++#include <spl.h>
++#include <asm/global_data.h>
++#include <dm/uclass.h>
++#include <dm/device.h>
++#include <dm/uclass-internal.h>
++#include <dm/device-internal.h>
++#include <dm/lists.h>
++#include <asm/io.h>
++#include <asm/gpio.h>
++#include <asm/arch/sci/sci.h>
++#include <asm/arch/imx8-pins.h>
++#include <asm/arch/iomux.h>
++#include <asm/arch/sys_proto.h>
++#include <bootm.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++#define GPIO_PAD_CTRL	((SC_PAD_CONFIG_NORMAL << PADRING_CONFIG_SHIFT) | \
++			 (SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
++			 (SC_PAD_28FDSOI_DSE_DV_HIGH << PADRING_DSE_SHIFT) | \
++			 (SC_PAD_28FDSOI_PS_PU << PADRING_PULL_SHIFT))
++
++#define USDHC2_SD_PWR IMX_GPIO_NR(4, 19)
++static iomux_cfg_t usdhc2_sd_pwr[] = {
++	SC_P_USDHC1_RESET_B | MUX_PAD_CTRL(GPIO_PAD_CTRL),
++};
++
++void spl_board_init(void)
++{
++	struct udevice *dev;
++
++	uclass_get_device_by_driver(UCLASS_MISC, DM_DRIVER_GET(imx8_scu), &dev);
++
++	uclass_find_first_device(UCLASS_MISC, &dev);
++
++	for (; dev; uclass_find_next_device(&dev)) {
++		if (device_probe(dev))
++			continue;
++	}
++
++	board_early_init_f();
++
++	timer_init();
++
++	imx8_iomux_setup_multiple_pads(usdhc2_sd_pwr, ARRAY_SIZE(usdhc2_sd_pwr));
++	gpio_direction_output(USDHC2_SD_PWR, 0);
++
++#ifdef CONFIG_SPL_SERIAL
++	preloader_console_init();
++
++	puts("Normal Boot\n");
++#endif
++}
++
++void spl_board_prepare_for_boot(void)
++{
++	board_quiesce_devices();
++}
++
++#ifdef CONFIG_SPL_LOAD_FIT
++int board_fit_config_name_match(const char *name)
++{
++	/* Just empty function now - can't decide what to choose */
++	debug("%s: %s\n", __func__, name);
++
++	return 0;
++}
++#endif
++
++void board_init_f(ulong dummy)
++{
++	/* Clear the BSS. */
++	memset(__bss_start, 0, __bss_end - __bss_start);
++
++	arch_cpu_init();
++
++	board_init_r(NULL, 0);
++}
+diff --git a/board/freescale/imx8qxp_agility/uboot-container.cfg b/board/freescale/imx8qxp_agility/uboot-container.cfg
+new file mode 100644
+index 00000000..99daf2a7
+--- /dev/null
++++ b/board/freescale/imx8qxp_agility/uboot-container.cfg
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2019 NXP
++ */
++
++
++/* This file is to create a container image could be loaded by SPL */
++BOOT_FROM EMMC_FASTBOOT 0x400
++SOC_TYPE IMX8QX
++CONTAINER
++IMAGE A35 bl31.bin	0x80000000
++IMAGE A35 u-boot.bin	CONFIG_SYS_TEXT_BASE
+diff --git a/build_uboot.sh b/build_uboot.sh
+new file mode 100755
+index 00000000..e9253ed0
+--- /dev/null
++++ b/build_uboot.sh
+@@ -0,0 +1,2 @@
++export PATH=~/gcc-linaro/bin/:$PATH
++export CROSS_COMPILE=aarch64-none-linux-gnu-
+diff --git a/configs/imx8qxp_agility_defconfig b/configs/imx8qxp_agility_defconfig
+new file mode 100644
+index 00000000..4d1a656f
+--- /dev/null
++++ b/configs/imx8qxp_agility_defconfig
+@@ -0,0 +1,197 @@
++CONFIG_ARM=y
++CONFIG_ARCH_IMX8=y
++CONFIG_SYS_TEXT_BASE=0x80020000
++CONFIG_SYS_MALLOC_LEN=0x2400000
++CONFIG_SYS_MALLOC_F_LEN=0x8000
++CONFIG_SYS_MEMTEST_START=0xA0000000
++CONFIG_SYS_MEMTEST_END=0xB0000000
++CONFIG_SPL_GPIO=y
++CONFIG_SPL_LIBCOMMON_SUPPORT=y
++CONFIG_SPL_LIBGENERIC_SUPPORT=y
++CONFIG_NR_DRAM_BANKS=4
++CONFIG_ENV_SIZE=0x2000
++CONFIG_ENV_OFFSET=0x400000
++CONFIG_DM_GPIO=y
++CONFIG_DEFAULT_DEVICE_TREE="imx8qxp-agility"
++CONFIG_SPL_TEXT_BASE=0x100000
++CONFIG_TARGET_IMX8QXP_AGILITY=y
++CONFIG_SPL_MMC=y
++CONFIG_SPL_EFI_PARTITION=n
++CONFIG_SPL_DOS_PARTITION=n
++CONFIG_SPL_DM_SEQ_ALIAS=y
++CONFIG_SPL_SERIAL=y
++CONFIG_SPL_DRIVERS_MISC=y
++CONFIG_SPL=y
++CONFIG_SPL_LOAD_IMX_CONTAINER=y
++CONFIG_USE_TINY_PRINTF=y
++CONFIG_PANIC_HANG=y
++CONFIG_IMX_CONTAINER_CFG="board/freescale/imx8qxp_agility/uboot-container.cfg"
++CONFIG_REMAKE_ELF=y
++CONFIG_SYS_LOAD_ADDR=0x80200000
++CONFIG_OF_BOARD_SETUP=y
++CONFIG_OF_SYSTEM_SETUP=y
++CONFIG_BOOTDELAY=3
++CONFIG_USE_BOOTCOMMAND=y
++CONFIG_BOOTCOMMAND="mmc dev ${mmcdev}; if mmc rescan; then if test ${sec_boot} = yes; then if run loadcntr; then run mmcboot; else run netboot; fi; else if run loadimage; then run mmcboot; else run netboot; fi; fi; else booti ${loadaddr} - ${fdt_addr}; fi"
++CONFIG_LOG=y
++CONFIG_BOARD_EARLY_INIT_F=y
++CONFIG_SPL_BOARD_INIT=y
++# CONFIG_SPL_SYS_MALLOC_SIMPLE is not set
++CONFIG_SPL_SEPARATE_BSS=y
++CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR=y
++CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR=0x1040
++CONFIG_SPL_POWER_DOMAIN=y
++CONFIG_HUSH_PARSER=y
++CONFIG_CMD_CPU=y
++# CONFIG_BOOTM_NETBSD is not set
++# CONFIG_CMD_EXPORTENV is not set
++# CONFIG_CMD_IMPORTENV is not set
++CONFIG_CMD_CRC32=y
++CONFIG_CRC32_VERIFY=y
++CONFIG_CMD_CLK=y
++CONFIG_CMD_DM=y
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_CACHE=y
++CONFIG_CMD_EXT2=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_USB_MASS_STORAGE=y
++CONFIG_SPL_OF_CONTROL=y
++CONFIG_ENV_OVERWRITE=y
++CONFIG_ENV_IS_IN_MMC=y
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_SYS_MMC_ENV_DEV=0
++CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_SPL_DM=y
++CONFIG_SPL_CLK=y
++CONFIG_CLK_IMX8=y
++CONFIG_CPU=y
++CONFIG_MXC_GPIO=y
++CONFIG_DM_PCA953X=y
++CONFIG_DM_I2C=y
++CONFIG_SYS_I2C_IMX_LPI2C=y
++CONFIG_I2C_MUX=y
++CONFIG_I2C_MUX_PCA954x=y
++CONFIG_MISC=y
++CONFIG_SUPPORT_EMMC_BOOT=y
++CONFIG_FSL_USDHC=y
++CONFIG_MMC_IO_VOLTAGE=y
++CONFIG_MMC_UHS_SUPPORT=y
++CONFIG_MMC_HS400_SUPPORT=y
++CONFIG_EFI_PARTITION=y
++CONFIG_PHYLIB=y
++CONFIG_PHY_ADDR_ENABLE=y
++CONFIG_PHY_ATHEROS=y
++CONFIG_DM_ETH=y
++CONFIG_PHY_GIGE=y
++CONFIG_FEC_MXC_SHARE_MDIO=y
++CONFIG_FEC_MXC_MDIO_BASE=0x5B040000
++CONFIG_FEC_MXC=y
++CONFIG_MII=y
++CONFIG_PINCTRL=y
++CONFIG_SPL_PINCTRL=y
++CONFIG_PINCTRL_IMX8=y
++CONFIG_POWER_DOMAIN=y
++CONFIG_IMX8_POWER_DOMAIN=y
++CONFIG_DM_REGULATOR=y
++CONFIG_SPL_DM_REGULATOR=y
++CONFIG_DM_REGULATOR_FIXED=y
++CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_SPL_DM_REGULATOR_FIXED=y
++CONFIG_DM_SERIAL=y
++CONFIG_FSL_LPUART=y
++CONFIG_SPL_TINY_MEMSET=y
++# CONFIG_EFI_LOADER is not set
++
++CONFIG_CMD_FUSE=y
++CONFIG_CMD_MEMTEST=y
++
++CONFIG_IMX_BOOTAUX=y
++
++CONFIG_DM_THERMAL=y
++CONFIG_IMX_SCU_THERMAL=y
++
++CONFIG_SPI=y
++CONFIG_NXP_FSPI=y
++CONFIG_DM_SPI=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_STMICRO=y
++CONFIG_CMD_SF=y
++CONFIG_SF_DEFAULT_BUS=0
++CONFIG_SF_DEFAULT_CS=0
++CONFIG_SF_DEFAULT_SPEED=40000000
++CONFIG_SF_DEFAULT_MODE=0
++
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_XHCI_IMX8=y
++CONFIG_DM_USB=y
++CONFIG_DM_USB_GADGET=y
++CONFIG_SPL_DM_USB_GADGET=y
++CONFIG_USB=y
++CONFIG_USB_STORAGE=y
++CONFIG_USB_TCPC=n
++CONFIG_USB_GADGET=y
++CONFIG_CI_UDC=y
++CONFIG_USB_GADGET_DOWNLOAD=y
++CONFIG_USB_GADGET_MANUFACTURER="FSL"
++CONFIG_USB_GADGET_VENDOR_NUM=0x1fc9
++CONFIG_USB_GADGET_PRODUCT_NUM=0x0152
++CONFIG_USB_CDNS3=y
++CONFIG_USB_CDNS3_GADGET=y
++CONFIG_USB_GADGET_DUALSPEED=y
++CONFIG_CDNS3_USB_PHY=y
++CONFIG_PHY=y
++CONFIG_SPL_PHY=y
++
++CONFIG_SPL_USB_GADGET=y
++CONFIG_SPL_USB_SDP_SUPPORT=y
++CONFIG_SPL_SDP_USB_DEV=1
++CONFIG_SDP_LOADADDR=0x80400000
++
++CONFIG_FASTBOOT=y
++CONFIG_USB_FUNCTION_FASTBOOT=y
++CONFIG_CMD_FASTBOOT=y
++CONFIG_ANDROID_BOOT_IMAGE=y
++CONFIG_FASTBOOT_UUU_SUPPORT=y
++CONFIG_FASTBOOT_BUF_ADDR=0x82800000
++CONFIG_FASTBOOT_BUF_SIZE=0x40000000
++CONFIG_FASTBOOT_FLASH=y
++CONFIG_FASTBOOT_USB_DEV=1
++
++CONFIG_SYS_I2C_IMX_VIRT_I2C=y
++CONFIG_I2C_MUX_IMX_VIRT=y
++CONFIG_IMX_VSERVICE_SHARED_BUFFER=0x90400000
++
++CONFIG_BOOTAUX_RESERVED_MEM_BASE=0x88000000
++CONFIG_BOOTAUX_RESERVED_MEM_SIZE=0x08000000
++
++CONFIG_REGMAP=y
++CONFIG_SYSCON=y
++CONFIG_PCI=y
++
++CONFIG_USB_PORT_AUTO=y
++
++CONFIG_IMX_SNVS_SEC_SC=y
++CONFIG_OF_LIBFDT_OVERLAY=y
++
++CONFIG_VIDEO_IMXDPUV1=y
++CONFIG_DM_VIDEO=y
++CONFIG_BMP_16BPP=y
++CONFIG_BMP_24BPP=y
++CONFIG_BMP_32BPP=y
++CONFIG_VIDEO_LOGO=y
++CONFIG_VIDEO_IMX8_LVDS=y
++CONFIG_VIDEO_IT6263_BRIDGE=y
++CONFIG_SYS_WHITE_ON_BLACK=y
++CONFIG_SPLASH_SCREEN=y
++CONFIG_SPLASH_SCREEN_ALIGN=y
++CONFIG_CMD_BMP=y
+diff --git a/include/configs/imx8qxp_agility.h b/include/configs/imx8qxp_agility.h
+new file mode 100644
+index 00000000..fb6c3a7d
+--- /dev/null
++++ b/include/configs/imx8qxp_agility.h
+@@ -0,0 +1,255 @@
++/* SPDX-License-Identifier: GPL-2.0+ */
++/*
++ * Copyright 2018 NXP
++ */
++
++#ifndef __IMX8QXP_AGILITY_H
++#define __IMX8QXP_AGILITY_H
++
++#include <linux/sizes.h>
++#include <linux/stringify.h>
++#include <asm/arch/imx-regs.h>
++
++#include "imx_env.h"
++
++#ifdef CONFIG_SPL_BUILD
++#define CONFIG_SPL_MAX_SIZE				(192 * 1024)
++#define CONFIG_SYS_MONITOR_LEN				(1024 * 1024)
++
++/*
++ * 0x08081000 - 0x08180FFF is for m4_0 xip image,
++  * So 3rd container image may start from 0x8181000
++ */
++#define CONFIG_SYS_UBOOT_BASE 0x08181000
++
++#define CONFIG_SPL_STACK		0x013fff0
++#define CONFIG_SPL_BSS_START_ADDR      0x00130000
++#define CONFIG_SPL_BSS_MAX_SIZE		0x1000	/* 4 KB */
++#define CONFIG_SYS_SPL_MALLOC_START	0x82200000
++#define CONFIG_SYS_SPL_MALLOC_SIZE     0x80000	/* 512 KB */
++#define CONFIG_SERIAL_LPUART_BASE	0x5a060000
++#define CONFIG_MALLOC_F_ADDR		0x00138000
++
++#define CONFIG_SPL_RAW_IMAGE_ARM_TRUSTED_FIRMWARE
++
++#define CONFIG_SPL_ABORT_ON_RAW_IMAGE
++
++#endif
++
++#define CONFIG_CMD_READ
++
++#define CONFIG_SYS_FSL_ESDHC_ADDR       0
++#define USDHC1_BASE_ADDR                0x5B010000
++#define USDHC2_BASE_ADDR                0x5B020000
++
++#define CONFIG_PCIE_IMX
++#define CONFIG_CMD_PCI
++#define CONFIG_PCI_SCAN_SHOW
++
++#ifdef CONFIG_AHAB_BOOT
++#define AHAB_ENV "sec_boot=yes\0"
++#else
++#define AHAB_ENV "sec_boot=no\0"
++#endif
++
++/* Boot M4 */
++#define M4_BOOT_ENV \
++	"m4_0_image=m4_0.bin\0" \
++	"loadm4image_0=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${m4_0_image}\0" \
++	"m4boot_0=run loadm4image_0; dcache flush; bootaux ${loadaddr} 0\0" \
++
++#define CONFIG_MFG_ENV_SETTINGS \
++	CONFIG_MFG_ENV_SETTINGS_DEFAULT \
++	"initrd_addr=0x83100000\0" \
++	"initrd_high=0xffffffffffffffff\0" \
++	"emmc_dev=0\0" \
++	"sd_dev=1\0"
++
++#define JAILHOUSE_ENV \
++	"jh_mmcboot=" \
++		"setenv fdt_file imx8qxp-mek-root.dtb;"\
++		"setenv boot_os 'scu_rm dtb ${fdt_addr}; booti ${loadaddr} - ${fdt_addr};'; " \
++		"run mmcboot; \0" \
++	"jh_netboot=" \
++		"setenv fdt_file imx8qxp-mek-root.dtb;"\
++		"setenv boot_os 'scu_rm dtb ${fdt_addr}; booti ${loadaddr} - ${fdt_addr};'; " \
++		"run netboot; \0"
++
++#define XEN_BOOT_ENV \
++            "xenhyper_bootargs=console=dtuart dtuart=/serial@5a060000 dom0_mem=1024M dom0_max_vcpus=2 dom0_vcpus_pin=true\0" \
++            "xenlinux_bootargs= \0" \
++            "xenlinux_console=hvc0 earlycon=xen\0" \
++            "xenlinux_addr=0x9e000000\0" \
++            "dom0fdt_file=imx8qxp-mek-dom0.dtb\0" \
++            "xenboot_common=" \
++                "${get_cmd} ${loadaddr} xen;" \
++                "${get_cmd} ${fdt_addr} ${dom0fdt_file};" \
++                "${get_cmd} ${xenlinux_addr} ${image};" \
++                "fdt addr ${fdt_addr};" \
++                "fdt resize 256;" \
++                "fdt set /chosen/module@0 reg <0x00000000 ${xenlinux_addr} 0x00000000 0x${filesize}>; " \
++                "fdt set /chosen/module@0 bootargs \"${bootargs} ${xenlinux_bootargs}\"; " \
++                "setenv bootargs ${xenhyper_bootargs};" \
++                "booti ${loadaddr} - ${fdt_addr};" \
++            "\0" \
++            "xennetboot=" \
++                "setenv get_cmd dhcp;" \
++                "setenv console ${xenlinux_console};" \
++                "run netargs;" \
++                "run xenboot_common;" \
++            "\0" \
++            "xenmmcboot=" \
++                "setenv get_cmd \"fatload mmc ${mmcdev}:${mmcpart}\";" \
++                "setenv console ${xenlinux_console};" \
++                "run mmcargs;" \
++                "run xenboot_common;" \
++            "\0" \
++
++/* Initial environment variables */
++#define CONFIG_EXTRA_ENV_SETTINGS		\
++	CONFIG_MFG_ENV_SETTINGS \
++	M4_BOOT_ENV \
++	XEN_BOOT_ENV \
++	JAILHOUSE_ENV\
++	AHAB_ENV \
++	"script=boot.scr\0" \
++	"image=Image\0" \
++	"splashimage=0x9e000000\0" \
++	"console=ttyLP0\0" \
++	"fdt_addr=0x83000000\0"			\
++	"fdt_high=0xffffffffffffffff\0"		\
++	"cntr_addr=0x98000000\0"			\
++	"cntr_file=os_cntr_signed.bin\0" \
++	"boot_fdt=try\0" \
++	"fdt_file=undefined\0" \
++	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
++	"mmcpart=1\0" \
++	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
++	"mmcautodetect=yes\0" \
++	"mmcargs=setenv bootargs console=${console},${baudrate} earlycon root=${mmcroot}\0 " \
++	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
++	"bootscript=echo Running bootscript from mmc ...; " \
++		"source\0" \
++	"loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
++	"loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}\0" \
++	"loadcntr=fatload mmc ${mmcdev}:${mmcpart} ${cntr_addr} ${cntr_file}\0" \
++	"auth_os=auth_cntr ${cntr_addr}\0" \
++	"boot_os=booti ${loadaddr} - ${fdt_addr};\0" \
++	"mmcboot=echo Booting from mmc ...; " \
++		"run mmcargs; " \
++		"if test ${sec_boot} = yes; then " \
++			"if run auth_os; then " \
++				"run boot_os; " \
++			"else " \
++				"echo ERR: failed to authenticate; " \
++			"fi; " \
++		"else " \
++			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
++				"if run loadfdt; then " \
++					"run boot_os; " \
++				"else " \
++					"echo WARN: Cannot load the DT; " \
++				"fi; " \
++			"else " \
++				"echo wait for boot; " \
++			"fi;" \
++		"fi;\0" \
++	"netargs=setenv bootargs console=${console},${baudrate} earlycon " \
++		"root=/dev/nfs " \
++		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
++	"netboot=echo Booting from net ...; " \
++		"run netargs;  " \
++		"if test ${ip_dyn} = yes; then " \
++			"setenv get_cmd dhcp; " \
++		"else " \
++			"setenv get_cmd tftp; " \
++		"fi; " \
++		"if test ${sec_boot} = yes; then " \
++			"${get_cmd} ${cntr_addr} ${cntr_file}; " \
++			"if run auth_os; then " \
++				"run boot_os; " \
++			"else " \
++				"echo ERR: failed to authenticate; " \
++			"fi; " \
++		"else " \
++			"${get_cmd} ${loadaddr} ${image}; " \
++			"if test ${boot_fdt} = yes || test ${boot_fdt} = try; then " \
++				"if ${get_cmd} ${fdt_addr} ${fdt_file}; then " \
++					"run boot_os; " \
++				"else " \
++					"echo WARN: Cannot load the DT; " \
++				"fi; " \
++			"else " \
++				"booti; " \
++			"fi;" \
++		"fi;\0"
++
++/* Link Definitions */
++
++#define CONFIG_SYS_INIT_SP_ADDR         0x80200000
++
++#define CONFIG_MMCROOT			"/dev/mmcblk0p2"  /* USDHC1 */
++#define CONFIG_SYS_FSL_USDHC_NUM	1
++
++#define CONFIG_SYS_SDRAM_BASE		0x80000000
++#define PHYS_SDRAM_1			0x80000000
++#define PHYS_SDRAM_2			0x880000000
++
++#define PHYS_SDRAM_1_SIZE		0x80000000	/* 2 GB */
++/* LPDDR4 board total DDR is 3GB */
++#define PHYS_SDRAM_2_SIZE		0x40000000	/* 1 GB */
++
++/* Serial */
++#define CONFIG_BAUDRATE			115200
++
++/* Monitor Command Prompt */
++#define CONFIG_SYS_PROMPT_HUSH_PS2     "> "
++#define CONFIG_SYS_CBSIZE              2048
++#define CONFIG_SYS_MAXARGS             64
++#define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
++#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
++					sizeof(CONFIG_SYS_PROMPT) + 16)
++
++/* Generic Timer Definitions */
++#define COUNTER_FREQUENCY		8000000	/* 8MHz */
++
++#define CONFIG_SERIAL_TAG
++
++/* USB Config */
++#ifndef CONFIG_SPL_BUILD
++#define CONFIG_USBD_HS
++
++#endif
++
++#define CONFIG_USB_MAX_CONTROLLER_COUNT 2
++
++/* USB OTG controller configs */
++#ifdef CONFIG_USB_EHCI_HCD
++#define CONFIG_USB_HOST_ETHER
++#define CONFIG_USB_ETHER_ASIX
++#define CONFIG_MXC_USB_PORTSC		(PORT_PTS_UTMI | PORT_PTS_PTW)
++#endif
++
++/* Networking */
++#define CONFIG_FEC_ENET_DEV 0
++
++#if (CONFIG_FEC_ENET_DEV == 0)
++#define IMX_FEC_BASE			0x5B040000
++#define CONFIG_FEC_MXC_PHYADDR          0x0
++#define CONFIG_ETHPRIME                 "eth0"
++#elif (CONFIG_FEC_ENET_DEV == 1)
++#define IMX_FEC_BASE			0x5B050000
++#define CONFIG_FEC_MXC_PHYADDR          0x1
++#define CONFIG_ETHPRIME                 "eth1"
++#endif
++
++#define CONFIG_FEC_XCV_TYPE		RGMII
++#define PHY_ANEG_TIMEOUT 20000
++
++#if defined(CONFIG_ANDROID_SUPPORT)
++#include "imx8qxp_mek_android.h"
++#elif defined (CONFIG_ANDROID_AUTO_SUPPORT)
++#include "imx8qxp_mek_android_auto.h"
++#endif
++
++#endif /* __IMX8QXP_AGILITY_H */
+-- 
+2.25.1
+

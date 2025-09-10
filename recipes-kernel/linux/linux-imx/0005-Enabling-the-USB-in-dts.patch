@@ -1,0 +1,46 @@
+From 9233d8b8a99741331f3d9d5eb03a58a84eda47a0 Mon Sep 17 00:00:00 2001
+From: "sanjaikumar.vs" <sanjaikumar.vs@dicortech.com>
+Date: Fri, 31 Mar 2023 12:41:38 +0530
+Subject: [PATCH] Enabling the USB in dts
+
+---
+ .../boot/dts/freescale/imx8qxp-celeritas.dtsi    | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-celeritas.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas.dtsi
+index 0e0d7ed2e351..6a03da79cca6 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-celeritas.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-celeritas.dtsi
+@@ -14,8 +14,6 @@
+ 		reg = <0x00000000 0x80000000 0 0x40000000>;
+ 	};
+ 
+-
+-
+ 	reserved-memory {
+ 		#address-cells = <2>;
+ 		#size-cells = <2>;
+@@ -319,6 +317,20 @@
+ 	status = "okay";
+ };
+ 
++&usb3_phy {
++	status = "okay";
++};
++
++&usbotg3 {
++	status = "okay";
++};
++
++&usbotg3_cdns3 {
++	dr_mode = "otg";
++	usb-role-switch;
++	status = "okay";
++};
++
+ &usdhc1 {
+ 	assigned-clocks = <&clk IMX_SC_R_SDHC_0 IMX_SC_PM_CLK_PER>;
+ 	assigned-clock-rates = <400000000>;
+-- 
+2.17.1
+

@@ -1,0 +1,25 @@
+From f793dd830cc87356a67c4e93d008888faf363e82 Mon Sep 17 00:00:00 2001
+From: "sanjaikumar.vs" <sanjaikumar.vs@dicortech.com>
+Date: Thu, 23 Feb 2023 19:19:16 +0530
+Subject: [PATCH] Disabling USB Type C driver
+
+---
+ configs/imx8qxp_celeritas_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/imx8qxp_celeritas_defconfig b/configs/imx8qxp_celeritas_defconfig
+index 204bd7d037..f2d8328864 100644
+--- a/configs/imx8qxp_celeritas_defconfig
++++ b/configs/imx8qxp_celeritas_defconfig
+@@ -138,7 +138,7 @@ CONFIG_DM_USB_GADGET=y
+ CONFIG_SPL_DM_USB_GADGET=y
+ CONFIG_USB=y
+ CONFIG_USB_STORAGE=y
+-CONFIG_USB_TCPC=y
++CONFIG_USB_TCPC=n
+ CONFIG_USB_GADGET=y
+ CONFIG_CI_UDC=y
+ CONFIG_USB_GADGET_DOWNLOAD=y
+-- 
+2.25.1
+
