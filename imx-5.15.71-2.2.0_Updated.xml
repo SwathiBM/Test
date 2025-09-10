@@ -12,7 +12,7 @@
   <remote fetch="https://github.com/openembedded" name="oe"/>
   <remote fetch="https://git.yoctoproject.org/git" name="yocto"/>
   <remote fetch="https://github.com/nxp-imx-support" name="imx-support"/>
-  <remote fetch="https://github.com/dicortech" name="dicortech"/>
+  <remote fetch="https://github.com/SwathiBM" name="SwathiBM"/>
 
   <project name="fsl-community-bsp-base" path="sources/base" remote="community" revision="60f79f7af60537146298560079ae603260f0bd14" upstream="kirkstone">
     <linkfile dest="README" src="README"/>
@@ -25,12 +25,12 @@
   <project name="meta-freescale-distro" path="sources/meta-freescale-distro" remote="community" revision="d5bbb487b2816dfc74984a78b67f7361ce404253" upstream="kirkstone"/>
 
   <project name="meta-imx" path="sources/meta-imx" remote="nxp-imx" revision="refs/tags/rel_imx_5.15.71_2.2.0" upstream="kirkstone-5.15.71-2.2.0"/>
-  <project name="meta-fvc" path="sources/meta-fvc" remote="dicortech" revision="refs/tags/sub_rel_1_1_0" upstream="main">
+  <project name="Test" path="sources/meta-fvc" remote="SwathiBM" revision="refs/tag/sub_rel_1_1_0" upstream="meta-fvc">
     <linkfile dest="fvc-setup-release.sh" src="tools/fvc-setup-release.sh"/>
     <linkfile dest="README-FVC" src="README.md"/>
   </project>
 
-  <project name="meta-agility-demo" path="sources/meta-agility-demo" remote="dicortech" revision="refs/tags/sub_rel_1_1_0" upstream="main"/>
+  <project name="Test" path="sources/meta-agility" remote="SwathiBM" revision="refs/tag/sub_rel_1_1_1" upstream="meta-agility"/>
 
   <project name="meta-nxp-demo-experience" path="sources/meta-nxp-demo-experience" remote="imx-support" revision="52eaf8bf42f8eda2917a1c8c046003c8c2c8f629" upstream="kirkstone"/>
   <project name="meta-openembedded" path="sources/meta-openembedded" remote="oe" revision="744a4b6eda88b9a9ca1cf0df6e18be384d9054e3" upstream="kirkstone"/>

@@ -10,4 +10,6 @@ DCT FirstView fvc-manifest project
 
 2.The file was later updated to support the Agility SOM (Standalone + Carrier board).
 
-3.Software driver support for Carrier board interfaces is maintained in a new meta layer/repository called "meta-agility-demo" in the DCT GitHub (renamed to "meta-agility" in the FirstView GitHub). For standalone board peripherals, software driver support continues to reside in the "meta-fvc" repository.
+3.Software driver support for Carrier board interfaces is maintained in a new meta layer/repository called "meta-agility-demo" in the DCT GitHub (renamed to "meta-agility" in the FirstView GitHub). For standalone board peripherals, software driver support continues to reside in the "meta-fvc" repository. 
+
+4. Updated manifest file proper release tags in FirstView[Received from DCT Git]
