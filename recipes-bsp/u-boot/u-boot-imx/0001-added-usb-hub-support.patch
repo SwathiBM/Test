@@ -1,0 +1,36 @@
+From a13d49be259229b36a129b1105644c0e6207dd20 Mon Sep 17 00:00:00 2001
+From: "maria.james" <maria.james@dicortech.com>
+Date: Mon, 29 Jan 2024 17:40:28 +0530
+Subject: [PATCH] USB Hub enabled. Made changes to the uboot source for the
+ same.
+
+---
+ board/freescale/imx8qxp_agility/imx8qxp_agility.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/board/freescale/imx8qxp_agility/imx8qxp_agility.c b/board/freescale/imx8qxp_agility/imx8qxp_agility.c
+index 3a65ce89..b0656712 100644
+--- a/board/freescale/imx8qxp_agility/imx8qxp_agility.c
++++ b/board/freescale/imx8qxp_agility/imx8qxp_agility.c
+@@ -410,6 +410,18 @@ int board_late_init(void)
+ 	board_late_mmc_env_init();
+ #endif
+ 
++/****************************************************************
++        The following steps are done for setting the RESET# pin of the
++connected USB 2.0 hub as high, thereby disabling reset.
++****************************************************************/
++
++        static iomux_cfg_t gpio_usb_reset[] = {
++                SC_P_USB_SS3_TC0 | MUX_MODE_ALT(4) | MUX_PAD_CTRL(GPIO_PAD_CTRL),
++        };
++        imx8_iomux_setup_multiple_pads(gpio_usb_reset, ARRAY_SIZE(gpio_usb_reset));
++        gpio_request(IMX_GPIO_NR(4,3), "usb_hub_reset");
++        gpio_direction_output(IMX_GPIO_NR(4, 3), 1); // disabling usb hub reset pin
++
+ 	return 0;
+ }
+ 
+-- 
+2.34.1
+

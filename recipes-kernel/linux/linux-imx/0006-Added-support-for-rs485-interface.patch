@@ -1,0 +1,55 @@
+From 69bfec1964bf910165b522b3b917c13a353f3f44 Mon Sep 17 00:00:00 2001
+From: "muhammed.asif" <muhammed.asif@dicortech.com>
+Date: Tue, 30 Jan 2024 17:14:28 +0530
+Subject: [PATCH] Added support for rs485 interface
+
+---
+ .../boot/dts/freescale/imx8qxp-agility.dtsi     | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+index 01db56c81..e593966ee 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+@@ -258,15 +258,22 @@ &lpuart0 {
+ 	status = "okay";
+ };
+ 
++//rs232 config
+ &lpuart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_lpuart1>;
+ 	status = "okay";
+ };
+ 
++//rs485 configs
+ &lpuart2 {
+ 	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_lpuart2>;
++	pinctrl-0 = <&pinctrl_lpuart2>,<&pinctrl_rs485>;
++	rts-gpios = <&lsio_gpio1 15 GPIO_ACTIVE_LOW>;
++	//cts-gpios = <&lsio_gpio1 16 GPIO_ACTIVE_LOW>;
++	linux,rs485-enabled-at-boot-time;   /* Enable RS485 at boot time to skip using TIOCSRS485 ioctl */
++	uart-has-rs485-half-duplex;
++    rs485-rts-active-low;
+ 	status = "okay";
+ };
+ 
+@@ -603,6 +610,14 @@ IMX8QXP_UART2_RX_ADMA_UART2_RX		0x06000020
+ 		>;
+ 	};
+ 
++	pinctrl_rs485: rs485_grp{
++		fsl,pins = <
++			IMX8QXP_FLEXCAN0_RX_LSIO_GPIO1_IO15 0x00000021  //rts pin of rs485 controller
++			IMX8QXP_FLEXCAN0_TX_LSIO_GPIO1_IO16 0x00000021  //cts pin of rs485 controller
++	
++		>;
++	};
++
+ 	pinctrl_lpuart3: lpuart3grp {
+ 		fsl,pins = <
+ 			IMX8QXP_FLEXCAN2_TX_ADMA_UART3_TX	0x06000020
+-- 
+2.25.1
+

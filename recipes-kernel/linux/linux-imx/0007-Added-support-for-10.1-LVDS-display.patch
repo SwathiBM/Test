@@ -1,0 +1,111 @@
+From c6c921acec00a63b16bbae5f6e16e07d202e5d41 Mon Sep 17 00:00:00 2001
+From: "muhammed.asif" <muhammed.asif@dicortech.com>
+Date: Wed, 31 Jan 2024 17:26:17 +0530
+Subject: [PATCH] Added support for 10.1" LVDS display
+
+---
+ .../boot/dts/freescale/imx8qxp-agility.dtsi   | 74 +++++++++++++++++++
+ 1 file changed, 74 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+index 7b5c2b72f..820d40990 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+@@ -10,6 +10,50 @@ chosen {
+ 		stdout-path = &lpuart0;
+ 	};
+ 
++	lvds_backlight0: lvds_backlight@0 {
++		compatible = "pwm-backlight";
++		pwms = <&pwm_mipi_lvds0 0 100000 0>;
++
++		brightness-levels = < 0  1  2  3  4  5  6  7  8  9
++				     10 11 12 13 14 15 16 17 18 19
++				     20 21 22 23 24 25 26 27 28 29
++				     30 31 32 33 34 35 36 37 38 39
++				     40 41 42 43 44 45 46 47 48 49
++				     50 51 52 53 54 55 56 57 58 59
++				     60 61 62 63 64 65 66 67 68 69
++				     70 71 72 73 74 75 76 77 78 79
++				     80 81 82 83 84 85 86 87 88 89
++				     90 91 92 93 94 95 96 97 98 99
++				    100>;
++		default-brightness-level = <80>;
++	};
++	
++	panel0: panel0 {
++		status = "okay";
++		compatible = "panel-lvds";
++		data-mapping = "vesa-24";
++		backlight = <&lvds_backlight0>;
++		width-mm = <154>;
++		height-mm = <86>;
++	
++	//panel timing from vesa standards for 1024x600 display
++	panel-timing {
++                clock-frequency = <33300000>;
++                hactive = <1024>;
++                vactive = <600>;
++                hfront-porch = <40>;
++                hsync-len = <104>;
++                hback-porch = <144>;
++                vfront-porch = <3>;
++                vsync-len = <10>;
++                vback-porch = <11>;
++         };  
++	port {
++			panel_lvds0_in: endpoint {
++				remote-endpoint = <&lvds0_out>;
++			};
++		};
++	};
+ 	memory@80000000 {
+ 		device_type = "memory";
+ 		reg = <0x00000000 0x80000000 0 0x40000000>;
+@@ -350,6 +394,30 @@ st24c02:eeprom@50 {
+         };		
+ };
+ 
++&pwm_mipi_lvds0 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_pwm_mipi_lvds0>;
++	status = "okay";
++};
++
++&ldb1 {
++    status = "okay";
++ 
++    lvds-channel@0 {
++        fsl,data-mapping = "jeida";
++        fsl,data-width = <24>;
++		crtc = "ipu1-di0";
++		status = "okay";
++		primary;
++		port@1 {
++			reg = <1>;
++			lvds0_out: endpoint {
++				remote-endpoint = <&panel_lvds0_in>;
++			};
++		};
++    };
++};
++
+ &usbotg3 {
+ 	status = "okay";
+ };
+@@ -679,6 +747,12 @@ IMX8QXP_ENET0_RGMII_RXD3_CONN_ENET0_RGMII_RXD3		0x61
+ 		>;
+ 	};
+ 
++	pinctrl_pwm_mipi_lvds0: mipi_lvds0_pwm_grp {
++		fsl,pins = <
++			IMX8QXP_MIPI_DSI0_GPIO0_00_MIPI_DSI0_PWM0_OUT		0x00000020
++		>;
++	};
++	
+ 	pinctrl_i2c0: i2c0grp {
+ 		fsl,pins = <
+ 			IMX8QXP_MIPI_CSI0_GPIO0_00_ADMA_I2C0_SCL	0x06000021
+-- 
+2.25.1
+

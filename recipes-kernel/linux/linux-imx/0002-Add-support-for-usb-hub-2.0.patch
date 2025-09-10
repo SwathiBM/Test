@@ -1,0 +1,28 @@
+From 08994f3ff414abb1030d17c95949c13068b33c5c Mon Sep 17 00:00:00 2001
+From: "muhammed.asif" <muhammed.asif@dicortech.com>
+Date: Tue, 30 Jan 2024 14:32:44 +0530
+Subject: [PATCH] Add support for usb hub 2.0
+
+---
+ arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+index b4f1f4af6..95542def2 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+@@ -322,6 +322,11 @@ &usb3_phy {
+ 	status = "okay";
+ };
+ 
++&usbotg1 {
++        dr_mode = "host";
++        status = "okay";
++};
++
+ &usbotg3 {
+ 	status = "okay";
+ };
+-- 
+2.25.1
+

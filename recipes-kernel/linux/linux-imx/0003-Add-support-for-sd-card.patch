@@ -1,0 +1,66 @@
+From 30f2a74d3c37380a234b852a6bde67c306d6e445 Mon Sep 17 00:00:00 2001
+From: "muhammed.asif" <muhammed.asif@dicortech.com>
+Date: Tue, 30 Jan 2024 15:39:25 +0530
+Subject: [PATCH] Add support for sd card
+
+---
+ .../boot/dts/freescale/imx8qxp-agility.dtsi   | 22 +++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+index 95542def2..6f6a23815 100644
+--- a/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8qxp-agility.dtsi
+@@ -350,6 +350,19 @@ &usdhc1 {
+ 	non-removable;
+ 	status = "okay";
+ };
++
++&usdhc2 {
++	pinctrl-names = "default", "state_100mhz", "state_200mhz";
++	pinctrl-0 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	pinctrl-1 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	pinctrl-2 = <&pinctrl_usdhc2>, <&pinctrl_usdhc2_gpio>;
++	bus-width = <4>;
++	vmmc-supply = <&reg_usdhc2_vmmc>;
++	cd-gpios = <&lsio_gpio4 22 GPIO_ACTIVE_LOW>;
++	wp-gpios = <&lsio_gpio4 21 GPIO_ACTIVE_LOW>;
++	status = "okay";
++};
++
+ &vpu {
+ 	compatible = "nxp,imx8qxp-vpu";
+ 	status = "okay";
+@@ -482,6 +495,12 @@ &lsio_gpio0 {
+ 	pinctrl-0 = <&pinctrl_gpio0>;
+ 	status="okay";
+ };
++
++&lsio_gpio4 {
++        pinctrl-names = "default";
++//        pinctrl-0 = <&pinctrl_gpio4>;
++        status="okay";
++};
+ &iomuxc {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_hog>;
+@@ -558,6 +577,8 @@ IMX8QXP_EMMC0_STROBE_CONN_EMMC0_STROBE			0x00000041
+ 	pinctrl_usdhc2_gpio: usdhc2gpiogrp {
+ 		fsl,pins = <
+ 			IMX8QXP_USDHC1_RESET_B_LSIO_GPIO4_IO19     0x00000021
++			IMX8QXP_USDHC1_WP_LSIO_GPIO4_IO21          0x00000021
++			IMX8QXP_USDHC1_CD_B_LSIO_GPIO4_IO22        0x00000021
+ 		>;
+ 	};
+ 
+@@ -570,6 +591,7 @@ IMX8QXP_USDHC1_DATA0_CONN_USDHC1_DATA0			0x00000021
+ 			IMX8QXP_USDHC1_DATA1_CONN_USDHC1_DATA1			0x00000021
+ 			IMX8QXP_USDHC1_DATA2_CONN_USDHC1_DATA2			0x00000021
+ 			IMX8QXP_USDHC1_DATA3_CONN_USDHC1_DATA3			0x00000021
++			IMX8QXP_USDHC1_VSELECT_CONN_USDHC1_VSELECT		0x00000021
+ 		>;
+ 	};
+ 	
+-- 
+2.25.1
+
